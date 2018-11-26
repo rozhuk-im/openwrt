@@ -10,10 +10,10 @@
 	model = "D-Link DIR-510L";
 
 	aliases {
-		led-boot = &led_status;
-		led-failsafe = &led_status;
-		led-running = &led_status;
-		led-upgrade = &led_status;
+		led-boot = &led_status_green;
+		led-failsafe = &led_status_red;
+		led-running = &led_status_green;
+		led-upgrade = &led_status_red;
 	};
 
 	chosen {
@@ -39,23 +39,64 @@
 	leds {
 		compatible = "gpio-leds";
 
-		led_status: status {
+		led_status_green: status_green {
 			label = "green:status";
 			gpios = <&gpio0 14 GPIO_ACTIVE_HIGH>;
 		};
 
-		status-red {
+		led_status_red: status_red {
 			label = "red:status";
 			gpios = <&gpio0 11 GPIO_ACTIVE_HIGH>;
+		};
+	};
+
+	gpio_export {
+		compatible = "gpio-export";
+		#size-cells = <0>;
+
+		hw_reboot {
+			gpio-export,name = "hw_reboot";
+			gpio-export,output = <0>;
+			gpios = <&gpio0 0 GPIO_ACTIVE_HIGH>;
+		};
+
+		usb_power_1_0A {
+			gpio-export,name = "usb_power_1_0A";
+			gpio-export,output = <0>;
+			gpios = <&gpio0 12 GPIO_ACTIVE_LOW>;
+		};
+
+		usb_power_0_5A {
+			gpio-export,name = "usb_power_0_5A";
+			gpio-export,output = <1>;
+			gpios = <&gpio0 13 GPIO_ACTIVE_HIGH>;
 		};
 	};
 };
 
 &ethernet {
 	mediatek,portmap = "llllw";
+	mtd-mac-address = <&config 0xe490>;
+	mtd-mac-address-increment = <(1)>;
 };
 
 &uart {
+	status = "okay";
+};
+
+&gpio0 {
+	status = "okay";
+};
+
+&gpio1 {
+	status = "okay";
+};
+
+&gpio2 {
+	status = "okay";
+};
+
+&gpio3 {
 	status = "okay";
 };
 
@@ -107,16 +148,24 @@
 	status = "okay";
 };
 
+&wmac {
+	mtd-mac-address = <&config 0xe490>;
+	mtd-mac-address-increment = <(1)>;
+};
+
 &pcie {
 	status = "okay";
 };
 
 &pcie0 {
 	mt76x0e@0,0 {
+		// compatible = "mediatek,mt76";
 		reg = <0x0000 0 0 0 0>;
 		mtd-mac-address = <&config 0xe490>;
 		mtd-mac-address-increment = <(2)>;
 		mediatek,mtd-eeprom = <&config 0xe05d>;
+		mediatek,2ghz = <0>;
+		ieee80211-freq-limit = <5000000 6000000>;
 	};
 };
 
@@ -126,7 +175,7 @@
 
 &state_default {
 	default {
-		groups = "i2c", "uartf";
+		groups = "i2c", "uartf", "ephy", "wled", "rgmii1", "spi refclk";
 		function = "gpio";
 	};
 };
