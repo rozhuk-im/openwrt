@@ -132,6 +132,9 @@ ramips_setup_interfaces()
 		ucidef_add_switch "switch0" \
 			"1:lan" "2:lan" "3:lan" "4:lan" "0:wan" "5@eth0"
 		;;
+	dlink,dir-506l)
+		ucidef_set_interface_lan "eth0"
+		;;
 	dlink,dir-615-h1)
 		ucidef_add_switch "switch0" \
 			"0:lan:4" "1:lan:3" "2:lan:2" "3:lan:1" "4:wan:5" "6@eth0"
@@ -261,6 +264,9 @@ ramips_setup_macs()
 	dlink,dir-600-b1|\
 	dlink,dir-610-a1)
 		wan_mac=$(macaddr_add "$(mtd_get_mac_binary devdata 0x4004)" 1)
+		;;
+	dlink,dir-506l)
+		label_mac=$(macaddr_add "$(mtd_get_mac_binary config 0xe084)" 1)
 		;;
 	dlink,dir-615-d)
 		label_mac=$(mtd_get_mac_binary devdata 0x4004)
