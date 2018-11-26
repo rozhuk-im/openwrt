@@ -12,10 +12,10 @@
 	model = "D-Link DIR-510L";
 
 	aliases {
-		led-boot = &led_status;
-		led-failsafe = &led_status;
-		led-running = &led_status;
-		led-upgrade = &led_status;
+		led-boot = &led_status_green;
+		led-failsafe = &led_status_red;
+		led-running = &led_status_green;
+		led-upgrade = &led_status_red;
 	};
 
 	chosen {
@@ -41,16 +41,27 @@
 	leds {
 		compatible = "gpio-leds";
 
-		led_status: status {
-			function = LED_FUNCTION_STATUS;
+		led_status_green: status_green {
 			color = <LED_COLOR_ID_GREEN>;
+			function = LED_FUNCTION_STATUS;
 			gpios = <&gpio0 14 GPIO_ACTIVE_HIGH>;
 		};
 
-		status-red {
-			function = LED_FUNCTION_STATUS;
+		led_status_red: status_red {
 			color = <LED_COLOR_ID_RED>;
+			function = LED_FUNCTION_STATUS;
 			gpios = <&gpio0 11 GPIO_ACTIVE_HIGH>;
+		};
+	};
+
+	gpio_export {
+		compatible = "gpio-export";
+		#size-cells = <0>;
+
+		hw_reboot {
+			gpio-export,name = "hw_reboot";
+			gpio-export,output = <0>;
+			gpios = <&gpio0 0 GPIO_ACTIVE_HIGH>;
 		};
 	};
 };
@@ -60,6 +71,22 @@
 };
 
 &uart {
+	status = "okay";
+};
+
+&gpio0 {
+	status = "okay";
+};
+
+&gpio1 {
+	status = "okay";
+};
+
+&gpio2 {
+	status = "okay";
+};
+
+&gpio3 {
 	status = "okay";
 };
 
@@ -143,7 +170,7 @@
 
 &state_default {
 	default {
-		groups = "i2c", "uartf";
+		groups = "i2c", "uartf", "ephy", "wled", "rgmii1", "spi refclk";
 		function = "gpio";
 	};
 };
