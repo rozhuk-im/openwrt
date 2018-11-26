@@ -191,7 +191,8 @@ define Device/dlink_dir-510l
   IMAGE_SIZE := 14208k
   DEVICE_VENDOR := D-Link
   DEVICE_MODEL := DIR-510L
-  DEVICE_PACKAGES += kmod-mt76x0e
+  DEVICE_PACKAGES += kmod-mt76x0e kmod-usb-core kmod-ledtrig-gpio \
+		     kmod-ledtrig-netdev kmod-ledtrig-timer uqmi
   DLINK_ROM_ID := DLK6E3805001
   DLINK_FAMILY_MEMBER := 0x6E38
   DLINK_FIRMWARE_SIZE := 0xDE0000
