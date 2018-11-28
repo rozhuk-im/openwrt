@@ -16,40 +16,40 @@
 #ifndef mkdlinkfw_lib_h
 #define mkdlinkfw_lib_h
 
-#define AUH_MAGIC "DLK"
-#define AUH_SIZE 80
-#define AUH_LVPS 0x01
-#define AUH_HDR_ID 0x4842
-#define AUH_HDR_VER 0x02
-#define AUH_SEC_ID 0x04
-#define AUH_INFO_TYPE 0x04
 
-#define STAG_SIZE 16
-#define STAG_ID 0x04
-#define STAG_MAGIC 0x2B24
-#define STAG_CMARK_FACTORY 0xFF
+#define AUH_MAGIC		"DLK"
+#define AUH_SIZE		80
+#define AUH_LVPS		0x01
+#define AUH_HDR_ID		0x4842
+#define AUH_HDR_VER		0x02
+#define AUH_SEC_ID		0x04
+#define AUH_INFO_TYPE		0x04
 
-#define SCH2_SIZE 40
-#define SCH2_MAGIC 0x2124
-#define SCH2_VER 0x02
+#define STAG_SIZE		16
+#define STAG_ID			0x04
+#define STAG_MAGIC		0x2B24
+#define STAG_CMARK_FACTORY	0xFF
 
-#define FLAT 0
-#define JZ 1
-#define GZIP 2
-#define LZMA 3
+#define SCH2_SIZE		40
+#define SCH2_MAGIC		0x2124
+#define SCH2_VER		0x02
 
-#define RAM_ENTRY_ADDR 0x80000000
-#define RAM_LOAD_ADDR 0x80000000
-#define JBOOT_SIZE 0x10000
+#define FLAT			0
+#define JZ			1
+#define GZIP			2
+#define LZMA			3
 
-#define ALL_HEADERS_SIZE (AUH_SIZE + STAG_SIZE + SCH2_SIZE)
-#define MAX_HEADER_COUNTER 10
-#define TIMESTAMP_MAGIC 0x35016f00L
+#define RAM_ENTRY_ADDR		0x80000000
+#define RAM_LOAD_ADDR		0x80000000
+#define JBOOT_SIZE		0x10000
 
-#define FACTORY 0
-#define SYSUPGRADE 1
+#define ALL_HEADERS_SIZE	(AUH_SIZE + STAG_SIZE + SCH2_SIZE)
+#define MAX_HEADER_COUNTER	10
+#define TIMESTAMP_MAGIC		0x35016f00L
 
-#define ALIGN(x, a) ({ typeof(a) __a = (a); (((x) + __a - 1) & ~(__a - 1)); })
+#define FACTORY			0
+#define SYSUPGRADE		1
+
 
 #define ERR(fmt, ...) do { \
 	fflush(0); \
@@ -68,16 +68,21 @@
 	fprintf(stderr, "[%s] " fmt "\n", progname, ## __VA_ARGS__); \
 } while (0)
 
+
+
 struct file_info {
 	char *file_name;	/* name of the file */
 	uint32_t file_size;	/* length of the file */
 };
 
 uint32_t jboot_timestamp(void);
-uint16_t jboot_checksum(uint16_t start_val, uint16_t *data, int size);
+uint16_t jboot_checksum(uint16_t start_val, const void *data, size_t size);
 int get_file_stat(struct file_info *fdata);
-int read_to_buf(const struct file_info *fdata, char *buf);
-int pad_jffs2(char *buf, int currlen, int maxlen);
-int write_fw(const char *ofname, const char *data, int len);
+int read_to_buf(const struct file_info *fdata, uint8_t *buf);
+int write_fw(const char *ofname, const uint8_t *data, size_t len);
+
+void *mem_find_ptr(const void *ptr, const void *buf, const size_t buf_size,
+    const void *what_find, const size_t what_find_size);
+
 
 #endif				/* mkdlinkfw_lib_h */

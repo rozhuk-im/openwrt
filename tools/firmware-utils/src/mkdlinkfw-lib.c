@@ -13,16 +13,20 @@
  * any later version.
  */
 
+#define _GNU_SOURCE         /* See feature_test_macros(7) */
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include <strings.h>
 #include <unistd.h>		/* for unlink() */
 #include <libgen.h>
 #include <getopt.h>		/* for getopt() */
 #include <stdarg.h>
 #include <stdbool.h>
+#ifdef __linux__
 #include <endian.h>
+#endif
 #include <errno.h>
 #include <time.h>
 #include <sys/stat.h>
@@ -32,37 +36,42 @@
 
 extern char *progname;
 
-static unsigned char jffs2_eof_mark[4] = { 0xde, 0xad, 0xc0, 0xde };
 
-uint32_t jboot_timestamp(void)
+uint32_t
+jboot_timestamp(void)
 {
 	time_t rawtime;
 	time(&rawtime);
 	return (((uint32_t) rawtime) - TIMESTAMP_MAGIC) >> 2;
 }
 
-uint16_t jboot_checksum(uint16_t start_val, uint16_t *data, int size)
+uint16_t
+jboot_checksum(uint16_t start_val, const void *data, size_t size)
 {
 	uint32_t counter = start_val;
-	uint16_t *ptr = data;
+	uint8_t *ptr = (uint8_t*)data;
 
 	while (size > 1) {
-		counter += *ptr;
-		++ptr;
+		counter += ptr[0];
+		counter += (((uint16_t)ptr[1]) << 8);
 		while (counter >> 16)
-			counter = (uint16_t) counter + (counter >> 16);
+			counter = (uint16_t)counter + (counter >> 16);
+		ptr += 2;
 		size -= 2;
 	}
 	if (size > 0) {
-		counter += *(uint8_t *) ptr;
+		counter += ptr[0];
 		counter -= 0xFF;
 	}
-	while (counter >> 16)
-		counter = (uint16_t) counter + (counter >> 16);
-	return counter;
+	while (counter >> 16) {
+		counter = (uint16_t)counter + (counter >> 16);
+	}
+
+	return ((uint16_t)counter);
 }
 
-int get_file_stat(struct file_info *fdata)
+int
+get_file_stat(struct file_info *fdata)
 {
 	struct stat st;
 	int res;
@@ -80,7 +89,8 @@ int get_file_stat(struct file_info *fdata)
 	return 0;
 }
 
-int read_to_buf(const struct file_info *fdata, char *buf)
+int
+read_to_buf(const struct file_info *fdata, uint8_t *buf)
 {
 	FILE *f;
 	int ret = EXIT_FAILURE;
@@ -106,41 +116,8 @@ int read_to_buf(const struct file_info *fdata, char *buf)
 	return ret;
 }
 
-int pad_jffs2(char *buf, int currlen, int maxlen)
-{
-	int len;
-	uint32_t pad_mask;
-
-	len = currlen;
-	pad_mask = (4 * 1024) | (64 * 1024);	/* EOF at 4KB and at 64KB */
-	while ((len < maxlen) && (pad_mask != 0)) {
-		uint32_t mask;
-		int i;
-
-		for (i = 10; i < 32; i++) {
-			mask = 1 << i;
-			if (pad_mask & mask)
-				break;
-		}
-
-		len = ALIGN(len, mask);
-
-		for (i = 10; i < 32; i++) {
-			mask = 1 << i;
-			if ((len & (mask - 1)) == 0)
-				pad_mask &= ~mask;
-		}
-
-		for (i = 0; i < sizeof(jffs2_eof_mark); i++)
-			buf[len + i] = jffs2_eof_mark[i];
-
-		len += sizeof(jffs2_eof_mark);
-	}
-
-	return len;
-}
-
-int write_fw(const char *ofname, const char *data, int len)
+int
+write_fw(const char *ofname, const uint8_t *data, size_t len)
 {
 	FILE *f;
 	int ret = EXIT_FAILURE;
@@ -169,4 +146,48 @@ int write_fw(const char *ofname, const char *data, int len)
 		unlink(ofname);
  out:
 	return ret;
+}
+
+static inline void *
+memmem_(const void *buf, const size_t buf_size, const void *what_find,
+    const size_t what_find_size) {
+	register uint8_t *ptm;
+	register size_t buf_size_wrk;
+
+	if (0 == what_find_size || what_find_size > buf_size)
+		return (NULL);
+	if (1 == what_find_size) /* use fast memchr() */
+		return ((void*)memchr(buf, (*((uint8_t*)what_find)), buf_size));
+	if (what_find_size == buf_size) { /* only memcmp() */
+		if (0 == memcmp(buf, what_find, what_find_size))
+			return ((void*)buf);
+		return (NULL);
+	}
+
+	ptm = ((uint8_t*)buf);
+	buf_size_wrk = (buf_size - (what_find_size - 1));
+	for (;;) {
+		ptm = (uint8_t*)memchr(ptm, (*((uint8_t*)what_find)),
+		    (buf_size_wrk - (ptm - ((uint8_t*)buf))));
+		if (NULL == ptm)
+			return (NULL);
+		if (0 == memcmp(ptm, what_find, what_find_size))
+			return (ptm);
+		ptm ++;
+	}
+	return (NULL);
+}
+
+void *
+mem_find_ptr(const void *ptr, const void *buf, const size_t buf_size,
+    const void *what_find, const size_t what_find_size) {
+	size_t offset;
+
+	if (NULL == buf || buf > ptr ||
+	    NULL == what_find || 0 == what_find_size)
+		return (NULL);
+	offset = (size_t)(((const uint8_t*)ptr) - ((const uint8_t*)buf));
+	if (offset >= buf_size)
+		return (NULL);
+	return (memmem_(ptr, (buf_size - offset), what_find, what_find_size));
 }
