@@ -71,7 +71,7 @@ proto_3g_setup() {
 					gprs_only) CODE="13,1";;
 					*) CODE="2,2";;
 				esac
-				export MODE="AT^SYSCFG=${CODE},3FFFFFFF,2,4"
+				export MODE='AT^SYSCFGEX="00",3fffffff,2,4,7fffffffffffffff,,'
 			fi
 
 			if [ -n "$pincode" ]; then
