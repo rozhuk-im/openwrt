@@ -29,4 +29,8 @@ define Host/Uninstall
 	-$(call Host/Compile/Default,uninstall)
 endef
 
+ifeq ($(HOST_OS),FreeBSD)
+	HOST_CFLAGS += -D_ID_T
+endif
+
 $(eval $(call HostBuild))

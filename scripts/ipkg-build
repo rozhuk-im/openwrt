@@ -13,12 +13,20 @@ version=1.0
 FIND="$(command -v find)"
 FIND="${FIND:-$(command -v gfind)}"
 TAR="${TAR:-$(command -v tar)}"
+case $(uname) in
+('Darwin'|*'BSD')
+	DATE_FLAGS='-r '
+	;;
+*)
+	DATE_FLAGS='--date=@'
+	;;
+esac
 
 # try to use fixed source epoch
 if [ -n "$PKG_SOURCE_DATE_EPOCH" ]; then
-	TIMESTAMP=$(date --date="@$PKG_SOURCE_DATE_EPOCH")
+	TIMESTAMP=$(date ${DATE_FLAGS}"$PKG_SOURCE_DATE_EPOCH")
 elif [ -n "$SOURCE_DATE_EPOCH" ]; then
-	TIMESTAMP=$(date --date="@$SOURCE_DATE_EPOCH")
+	TIMESTAMP=$(date ${DATE_FLAGS}"$SOURCE_DATE_EPOCH")
 else
 	TIMESTAMP=$(date)
 fi

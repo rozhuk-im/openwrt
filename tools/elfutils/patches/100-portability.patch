@@ -390,7 +390,7 @@
 +++ b/lib/stdio_ext.h
 @@ -0,0 +1,6 @@
 +#include <stdio.h>
-+#ifndef __APPLE__
++#if !defined(__APPLE__) && !defined(__FreeBSD__)
 +#include_next <stdio_ext.h>
 +#else
 +#define __fsetlocking(...) 0

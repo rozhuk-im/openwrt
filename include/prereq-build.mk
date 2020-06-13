@@ -16,6 +16,17 @@ $(eval $(call TestHostCommand,false, \
 	Please install GNU 'coreutils', \
 	$(FALSE); [ $$$$$$$$? = 1 ] && $(TRUE)))
 
+ifeq ($(HOST_OS),FreeBSD)
+  export PATH:=/usr/local/bin:$(PATH)
+  # Make symlink to installed gmake as make.
+  $(shell ln -sf `whereis -qb gmake` $(STAGING_DIR_HOST)/bin/make)
+  # Make symlink to installed touch.
+  $(shell ln -sf `whereis -qb gtouch` $(STAGING_DIR_HOST)/bin/touch)
+  # Make symlink to installed ccache.
+  $(shell ln -sf `whereis -qb ccache` $(STAGING_DIR_HOST)/bin/ccache)
+  $(shell cp -af $(TOPDIR)/tools/ccache/files/* $(STAGING_DIR_HOST)/bin/)
+endif
+
 # Required for the toolchain
 $(eval $(call TestHostCommand,working-make, \
 	Please install GNU make v4.1 or later., \
@@ -34,6 +45,7 @@ ifndef IB
 $(eval $(call SetupHostCommand,gcc, \
 	Please install the GNU C Compiler (gcc) 8 or later, \
 	$(CC) -dumpversion | grep -E '^([8-9]\.?|1[0-9]\.?)', \
+	$(CC) --version | grep 'clang', \
 	gcc -dumpversion | grep -E '^([8-9]\.?|1[0-9]\.?)', \
 	gcc-8 -dumpversion | grep -E '^([8-9]\.?|1[0-9]\.?)', \
 	gcc --version | grep -E 'Apple.(LLVM|clang)' ))
@@ -47,6 +59,7 @@ $(eval $(call TestHostCommand,working-gcc, \
 $(eval $(call SetupHostCommand,g++, \
 	Please install the GNU C++ Compiler (g++) 8 or later, \
 	$(CXX) -dumpversion | grep -E '^([8-9]\.?|1[0-9]\.?)', \
+	$(CXX) --version | grep 'clang', \
 	g++ -dumpversion | grep -E '^([8-9]\.?|1[0-9]\.?)', \
 	g++-8 -dumpversion | grep -E '^([8-9]\.?|1[0-9]\.?)', \
 	g++ --version | grep -E 'Apple.(LLVM|clang)' ))
@@ -58,9 +71,11 @@ $(eval $(call TestHostCommand,working-g++, \
 		$(STAGING_DIR_HOST)/bin/g++ -x c++ -o $(TMP_DIR)/a.out - -lstdc++ && \
 		$(TMP_DIR)/a.out))
 
+ifneq ($(HOST_OS),FreeBSD)
 $(eval $(call RequireCHeader,ncurses.h, \
 	Please install ncurses. (Missing libncurses.so or ncurses.h), \
 	initscr(), -lncurses))
+endif
 
 $(eval $(call SetupHostCommand,git,Please install Git (git-core) >= 1.7.12.2, \
 	git --exec-path | xargs -I % -- grep -q -- --recursive %/git-submodule, \
@@ -103,7 +118,8 @@ $(eval $(call TestHostCommand,perl-ipc-cmd, \
 $(eval $(call SetupHostCommand,tar,Please install GNU 'tar', \
 	gtar --version 2>&1 | grep GNU, \
 	gnutar --version 2>&1 | grep GNU, \
-	tar --version 2>&1 | grep GNU))
+	tar --version 2>&1 | grep GNU, \
+	tar --version 2>&1 | grep bsdtar))
 
 $(eval $(call SetupHostCommand,find,Please install GNU 'find', \
 	gfind --version 2>&1 | grep GNU, \
@@ -119,7 +135,8 @@ $(eval $(call SetupHostCommand,xargs, \
 
 $(eval $(call SetupHostCommand,patch,Please install GNU 'patch', \
 	gpatch --version 2>&1 | grep 'Free Software Foundation', \
-	patch --version 2>&1 | grep 'Free Software Foundation'))
+	patch --version 2>&1 | grep 'Free Software Foundation', \
+	patch --version | grep BSD))
 
 $(eval $(call SetupHostCommand,diff,Please install GNU diffutils, \
 	gdiff --version 2>&1 | grep GNU, \
@@ -149,6 +166,7 @@ $(eval $(call SetupHostCommand,getopt, \
 	Please install an extended getopt version that supports --long, \
 	gnugetopt -o t --long test -- --test | grep '^ *--test *--', \
 	getopt -o t --long test -- --test | grep '^ *--test *--', \
+	/usr/local/bin/getopt -o t --long test -- --test | grep '^ *--test *--', \
 	/usr/local/opt/gnu-getopt/bin/getopt -o t --long test -- --test | grep '^ *--test *--', \
 	/opt/local/bin/getopt -o t --long test -- --test | grep '^ *--test *--'))
 

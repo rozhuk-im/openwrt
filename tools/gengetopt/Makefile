@@ -17,6 +17,11 @@ PKG_SUBDIRS:=$$$$(foreach dir,gl src skels,$$$$(wildcard $$$$(dir)) )
 
 HOST_BUILD_PARALLEL:=1
 
+ifeq ($(HOST_OS),FreeBSD)
+  HOST_CFLAGS += -D_GL_SYSTEM_GETOPT
+  HOST_CXXFLAGS += -std=c++14
+endif
+
 include $(INCLUDE_DIR)/host-build.mk
 
 define Host/Compile
