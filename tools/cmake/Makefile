@@ -44,9 +44,18 @@ CMAKE_HOST_OPTIONS = \
 	-DZSTD_LIBRARY="$(STAGING_DIR_HOST)/lib/libzstd.a" \
 	-DBUILD_TESTING=OFF
 
+ifeq ($(HOST_OS),FreeBSD)
+HOST_CONFIGURE_ARGS += --system-libs \
+	--init="$(HOST_BUILD_DIR)/InitialCache.cmake"
+define Host/Configure
+	$(CP) ./files/InitialCache.cmake $(HOST_BUILD_DIR)/
+	$(call Host/Configure/Default,-- $(CMAKE_HOST_OPTIONS))
+endef
+else
 define Host/Configure
 	$(call Host/Configure/Default,-- $(CMAKE_HOST_OPTIONS))
 endef
+endif
 
 define Host/Compile/Default
 	+$(NINJA) -C $(HOST_BUILD_DIR) $(1)

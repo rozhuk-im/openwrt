@@ -1,0 +1,29 @@
+--- a/tools/meson-make-symlink.sh
++++ b/tools/meson-make-symlink.sh
+@@ -1,12 +1,24 @@
+ #!/bin/sh
+ set -eu
+ 
++case $(uname) in
++('Darwin'|*'BSD')
++	LN_FLAGS=''
++	LN_FLAGS_RELATIVE=''
++	;;
++*)
++	LN_FLAGS='-T '
++	LN_FLAGS_RELATIVE='-T --relative'
++	;;
++esac
++
++
+ # this is needed mostly because $DESTDIR is provided as a variable,
+ # and we need to create the target directory...
+ 
+ mkdir -vp "$(dirname "${DESTDIR:-}$2")"
+ if [ "$(dirname $1)" = . ]; then
+-    ln -fs -T "$1" "${DESTDIR:-}$2"
++    ln -fs ${LN_FLAGS} "$1" "${DESTDIR:-}$2"
+ else
+-    ln -fs -T --relative "${DESTDIR:-}$1" "${DESTDIR:-}$2"
++    ln -fs ${LN_FLAGS_RELATIVE} "${DESTDIR:-}$1" "${DESTDIR:-}$2"
+ fi

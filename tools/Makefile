@@ -136,30 +136,32 @@ $(curdir)/squashfs4/compile := $(curdir)/xz/compile $(curdir)/zlib/compile
 $(curdir)/util-linux/compile := $(curdir)/bison/compile $(curdir)/meson/compile
 $(curdir)/yafut/compile := $(curdir)/cmake/compile
 
-ifneq ($(HOST_OS),Linux)
-  tools-y += coreutils
-else
-  tools-$(if $(CONFIG_BUILD_ALL_HOST_TOOLS)$(CONFIG_SDK),y) += coreutils
-endif
-ifneq ($(filter coreutils,$(tools-y)),)
-  $(curdir)/elfutils/compile += $(curdir)/coreutils/compile
-  $(curdir)/findutils/compile += $(curdir)/coreutils/compile
-  $(curdir)/squashfs4/compile += $(curdir)/coreutils/compile
-  $(curdir)/util-linux/compile += $(curdir)/coreutils/compile
-endif
+ifneq ($(HOST_OS),FreeBSD)
+  ifneq ($(HOST_OS),Linux)
+    tools-y += coreutils
+  else
+    tools-$(if $(CONFIG_BUILD_ALL_HOST_TOOLS)$(CONFIG_SDK),y) += coreutils
+  endif
+  ifneq ($(filter coreutils,$(tools-y)),)
+    $(curdir)/elfutils/compile += $(curdir)/coreutils/compile
+    $(curdir)/findutils/compile += $(curdir)/coreutils/compile
+    $(curdir)/squashfs4/compile += $(curdir)/coreutils/compile
+    $(curdir)/util-linux/compile += $(curdir)/coreutils/compile
+  endif
 
-ifeq ($(HOST_OS),Darwin)
-  tools-y += bash
-else
-  $(curdir)/dwarves/compile += $(curdir)/elfutils/compile
-  tools-$(if $(CONFIG_BUILD_ALL_HOST_TOOLS)$(CONFIG_DWARVES),y) += dwarves
-endif
+  ifeq ($(HOST_OS),Darwin)
+    tools-y += bash
+  else
+    $(curdir)/dwarves/compile += $(curdir)/elfutils/compile
+    tools-$(if $(CONFIG_BUILD_ALL_HOST_TOOLS)$(CONFIG_DWARVES),y) += dwarves
+  endif
 
-ifneq ($(CONFIG_CCACHE)$(CONFIG_SDK),)
-$(foreach tool, $(filter-out zstd zlib xz pkgconf patch ninja meson libressl expat cmake,$(tools-y)), $(eval $(curdir)/$(tool)/compile += $(curdir)/ccache/compile))
-tools-y += ccache xxhash
-$(curdir)/xxhash/compile := $(curdir)/cmake/compile
-$(curdir)/ccache/compile := $(curdir)/xxhash/compile
+  ifneq ($(CONFIG_CCACHE)$(CONFIG_SDK),)
+  $(foreach tool, $(filter-out zstd zlib xz pkgconf patch ninja meson libressl expat cmake,$(tools-y)), $(eval $(curdir)/$(tool)/compile += $(curdir)/ccache/compile))
+  tools-y += ccache xxhash
+  $(curdir)/xxhash/compile := $(curdir)/cmake/compile
+  $(curdir)/ccache/compile := $(curdir)/xxhash/compile
+  endif
 endif
 
 # in case there is no patch tool on the host we need to make patch tool a
