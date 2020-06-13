@@ -32,6 +32,15 @@ HOST_CONFIGURE_ARGS := \
 	--prefix="$(STAGING_DIR_HOST)" \
 	--generator=Ninja
 
+ifeq ($(HOST_OS),FreeBSD)
+HOST_CONFIGURE_ARGS += --system-libs \
+	--init="$(HOST_BUILD_DIR)/InitialCache.cmake"
+define Host/Configure
+	$(CP) ./files/InitialCache.cmake $(HOST_BUILD_DIR)/
+	$(call Host/Configure/Default)
+endef
+endif
+
 define Host/Compile/Default
 	+$(NINJA) -C $(HOST_BUILD_DIR) $(1)
 endef
