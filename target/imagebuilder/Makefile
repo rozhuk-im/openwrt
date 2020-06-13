@@ -138,7 +138,7 @@ endif
 
 	(cd $(BUILD_DIR); \
 		tar -I '$(STAGING_DIR_HOST)/bin/zstd -T0 --ultra -20' -cf $@ $(IB_NAME) \
-		--mtime="$(shell date --date=@$(SOURCE_DATE_EPOCH))"; \
+		--mtime="$(shell date $(DATE_FLAGS)@$(SOURCE_DATE_EPOCH))"; \
 	)
 
 download:

@@ -102,7 +102,7 @@ define Build/storlink-default-images
 	dd if=$(IMAGE_KERNEL) of=$@.tmp/rd.gz bs=1 skip=2096640 count=6144k conv=sync
 	cp ./ImageInfo-$(1) $@.tmp/ImageInfo
 
-	sed -i -e "s/DATESTR/`date +%Y%m%d $(if $(SOURCE_DATE_EPOCH),--date "@$(SOURCE_DATE_EPOCH)")`/g" $@.tmp/ImageInfo
+	sed -i -e "s/DATESTR/`date +%Y%m%d $(if $(SOURCE_DATE_EPOCH),$(DATE_FLAGS)$(SOURCE_DATE_EPOCH))`/g" $@.tmp/ImageInfo
 
 	(cd $@.tmp; tar --sort=name --owner=0 --group=0 --numeric-owner -czf $@ * \
 		$(if $(SOURCE_DATE_EPOCH),--mtime="@$(SOURCE_DATE_EPOCH)"))

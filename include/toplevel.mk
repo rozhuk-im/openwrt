@@ -29,6 +29,19 @@ ifeq ($(HOST_OS),Darwin)
     $(error Please use a newer version of GNU make. The version shipped by Apple is not supported)
   endif
 endif
+# Disable ada build checks with clang to prevent infinite recursion:
+# cland call gcc for ada compilation, but first gcc in PATH is simlink
+# to clang.
+HOSTCC ?= $(CC)
+ifneq ($(shell $(HOSTCC) --version | grep clang),)
+  export acx_cv_cc_gcc_supports_ada=no
+endif
+
+ifeq ($(HOST_OS),FreeBSD)
+  export DATE_FLAGS='-r '
+else
+  export DATE_FLAGS='--date=@'
+endif
 
 # prevent perforce from messing with the patch utility
 unexport P4PORT P4USER P4CONFIG P4CLIENT

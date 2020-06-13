@@ -184,7 +184,7 @@ $(BIN_DIR)/$(SDK_NAME).tar.zst: clean
 
 	(cd $(BUILD_DIR); \
 		tar -I '$(STAGING_DIR_HOST)/bin/zstd -T0 --ultra -20' -cf $@ $(SDK_NAME) \
-		--mtime="$(shell date --date=@$(SOURCE_DATE_EPOCH))"; \
+		--mtime="$(shell date $(DATE_FLAGS)@$(SOURCE_DATE_EPOCH))"; \
 	)
 
 download:

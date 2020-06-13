@@ -132,22 +132,24 @@ $(curdir)/squashfs4/compile := $(curdir)/xz/compile $(curdir)/zlib/compile
 $(curdir)/util-linux/compile := $(curdir)/bison/compile $(curdir)/automake/compile
 $(curdir)/yafut/compile := $(curdir)/cmake/compile
 
-ifneq ($(HOST_OS),Linux)
-  $(curdir)/coreutils/compile += $(curdir)/automake/compile $(curdir)/bison/compile $(curdir)/gnulib/compile
-  $(curdir)/squashfs4/compile += $(curdir)/coreutils/compile
-  tools-y += coreutils
-endif
-ifeq ($(HOST_OS),Darwin)
-  tools-y += bash
-else
-  $(curdir)/dwarves/compile += $(curdir)/elfutils/compile
-  tools-$(if $(CONFIG_BUILD_ALL_HOST_TOOLS)$(CONFIG_DWARVES),y) += dwarves
-endif
+ifneq ($(HOST_OS),FreeBSD)
+  ifneq ($(HOST_OS),Linux)
+    $(curdir)/coreutils/compile += $(curdir)/automake/compile $(curdir)/bison/compile $(curdir)/gnulib/compile
+    $(curdir)/squashfs4/compile += $(curdir)/coreutils/compile
+    tools-y += coreutils
+  endif
+  ifeq ($(HOST_OS),Darwin)
+    tools-y += bash
+  else
+    $(curdir)/dwarves/compile += $(curdir)/elfutils/compile
+    tools-$(if $(CONFIG_BUILD_ALL_HOST_TOOLS)$(CONFIG_DWARVES),y) += dwarves
+  endif
 
-ifneq ($(CONFIG_CCACHE)$(CONFIG_SDK),)
-$(foreach tool, $(filter-out zstd zlib xz pkgconf patch ninja meson libressl expat cmake,$(tools-y)), $(eval $(curdir)/$(tool)/compile += $(curdir)/ccache/compile))
-tools-y += ccache
-$(curdir)/ccache/compile := $(curdir)/cmake/compile
+  ifneq ($(CONFIG_CCACHE)$(CONFIG_SDK),)
+    $(foreach tool, $(filter-out zstd zlib xz pkgconf patch ninja meson libressl expat cmake,$(tools-y)), $(eval $(curdir)/$(tool)/compile += $(curdir)/ccache/compile))
+    tools-y += ccache
+    $(curdir)/ccache/compile := $(curdir)/cmake/compile
+  endif
 endif
 
 # in case there is no patch tool on the host we need to make patch tool a

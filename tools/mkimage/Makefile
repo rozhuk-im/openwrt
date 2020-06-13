@@ -20,6 +20,10 @@ HOST_BUILD_DIR:=$(BUILD_DIR_HOST)/u-boot-$(PKG_VERSION)
 
 include $(INCLUDE_DIR)/host-build.mk
 
+ifeq ($(HOST_OS),FreeBSD)
+  HOST_PLATFORM_CPPFLAGS = "-I/usr/include"
+endif
+
 define Host/Configure
 	$(MAKE) -C $(HOST_BUILD_DIR) \
 		HOSTCFLAGS="$(HOST_CFLAGS)" \
@@ -33,6 +37,7 @@ endef
 
 define Host/Compile
 	$(MAKE) -C $(HOST_BUILD_DIR) \
+		PLATFORM_CPPFLAGS="$(HOST_PLATFORM_CPPFLAGS)" \
 		HOSTCFLAGS="$(HOST_CFLAGS)" \
 		HOSTLDFLAGS="$(HOST_LDFLAGS)" \
 		PKG_CONFIG_EXTRAARGS="--static" \

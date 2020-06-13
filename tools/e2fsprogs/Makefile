@@ -22,6 +22,10 @@ include $(INCLUDE_DIR)/host-build.mk
 ifneq ($(shell $(HOSTCC) --version | grep clang),)
   HOST_CFLAGS += -D__GNUC_PREREQ\(...\)=0 -Dloff_t=off_t
 endif
+ifeq ($(HOST_OS),FreeBSD)
+  HOST_CFLAGS += -DSORT_R_H_ -D__BSD_VISIBLE=1 -Dsort_r=qsort_r
+  HOST_LDFLAGS += -lc
+endif
 HOST_CFLAGS += $(HOST_FPIC)
 
 HOST_CONFIGURE_ARGS += \

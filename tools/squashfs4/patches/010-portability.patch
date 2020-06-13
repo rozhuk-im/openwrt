@@ -1,0 +1,75 @@
+--- a/squashfs-tools/xattr.c
++++ b/squashfs-tools/xattr.c
+@@ -36,7 +36,9 @@
+ #include <dirent.h>
+ #include <string.h>
+ #include <stdlib.h>
++#ifdef __linux__
+ #include <sys/xattr.h>
++#endif
+ #include <regex.h>
+ 
+ #include "squashfs_fs.h"
+@@ -146,6 +148,7 @@
+ static int read_xattrs_from_system(struct dir_ent *dir_ent, char *filename,
+ 						struct xattr_list **xattrs)
+ {
++#ifdef __linux__
+ 	ssize_t size, vsize;
+ 	char *xattr_names, *p;
+ 	int i = 0;
+@@ -297,6 +300,10 @@
+ 	free(xattr_list);
+ 	free(xattr_names);
+ 	return 0;
++#else
++	*xattrs = NULL;
++	return 0;
++#endif
+ }
+ 
+ 
+--- a/squashfs-tools/unsquashfs_xattr.c
++++ b/squashfs-tools/unsquashfs_xattr.c
+@@ -25,7 +25,9 @@
+ #include "unsquashfs.h"
+ #include "xattr.h"
+ 
++#ifdef __linux__
+ #include <sys/xattr.h>
++#endif
+ 
+ #ifdef XATTR_NOFOLLOW /* Apple's xattrs */
+ 	#define lsetxattr(path_, name_, val_, sz_, flags_) \
+@@ -104,6 +106,7 @@
+ 
+ void print_xattr(char *pathname, unsigned int xattr, int writer_fd)
+ {
++#ifdef __linux__
+ 	unsigned int count;
+ 	struct xattr_list *xattr_list;
+ 	int i, failed, res;
+@@ -146,11 +149,13 @@
+ 	}
+ 
+ 	free_xattr(xattr_list, count);
++#endif
+ }
+ 
+ 
+ int write_xattr(char *pathname, unsigned int xattr)
+ {
++#ifdef __linux__
+ 	unsigned int count;
+ 	struct xattr_list *xattr_list;
+ 	int i;
+@@ -277,6 +282,9 @@
+ 	free_xattr(xattr_list, count);
+ 
+ 	return !failed;
++#else
++	return TRUE;
++#endif
+ }
+ 
+ 

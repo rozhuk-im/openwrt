@@ -452,7 +452,7 @@ $(shell \
     fi; \
   else \
     secs="$$(($(SOURCE_DATE_EPOCH) % 86400))"; \
-    date="$$(date --utc --date="@$(SOURCE_DATE_EPOCH)" "+%y%m%d")"; \
+    date="$$(date $(DATE_FLAGS)@$(SOURCE_DATE_EPOCH) "+%y%m%d")"; \
     printf '%s.%05d' "$$date" "$$secs"; \
   fi; \
 )

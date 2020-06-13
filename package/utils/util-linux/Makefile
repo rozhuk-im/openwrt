@@ -628,13 +628,20 @@ MESON_ARGS += \
 	-Dmagic=disabled \
 	-Dncursesw=enabled
 
+
+ifeq ($(HOST_OS),FreeBSD)
+	PKG_CONFIG_LIBDIR=/usr/libdata/pkgconfig/
+else
+	PKG_CONFIG_LIBDIR=/usr/lib/pkgconfig
+endif
+
 define Build/InstallDev
 	$(INSTALL_DIR) $(1)/usr/lib/pkgconfig
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/pkgconfig/blkid.pc $(1)/usr/lib/pkgconfig
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/pkgconfig/fdisk.pc $(1)/usr/lib/pkgconfig
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/pkgconfig/mount.pc $(1)/usr/lib/pkgconfig
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/pkgconfig/smartcols.pc $(1)/usr/lib/pkgconfig
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/pkgconfig/uuid.pc $(1)/usr/lib/pkgconfig
+	$(CP) $(PKG_INSTALL_DIR)/$(PKG_CONFIG_LIBDIR)/blkid.pc $(1)/usr/lib/pkgconfig
+	$(CP) $(PKG_INSTALL_DIR)/$(PKG_CONFIG_LIBDIR)/fdisk.pc $(1)/usr/lib/pkgconfig
+	$(CP) $(PKG_INSTALL_DIR)/$(PKG_CONFIG_LIBDIR)/mount.pc $(1)/usr/lib/pkgconfig
+	$(CP) $(PKG_INSTALL_DIR)/$(PKG_CONFIG_LIBDIR)/smartcols.pc $(1)/usr/lib/pkgconfig
+	$(CP) $(PKG_INSTALL_DIR)/$(PKG_CONFIG_LIBDIR)/uuid.pc $(1)/usr/lib/pkgconfig
 
 	$(INSTALL_DIR) $(1)/usr/include/blkid
 	$(CP) $(PKG_INSTALL_DIR)/usr/include/blkid/blkid.h $(1)/usr/include/blkid
