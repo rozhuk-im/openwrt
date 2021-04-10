@@ -95,6 +95,7 @@ ramips_setup_interfaces()
 		;;
 	comfast,cf-wr758ac-v1|\
 	comfast,cf-wr758ac-v2|\
+	hooolink,hl-mf908-v3|\
 	tplink,tl-wr902ac-v3|\
 	wavlink,wl-wn576a2)
 		ucidef_add_switch "switch0" \
@@ -330,6 +331,18 @@ ramips_setup_macs()
 	wrtnode,wrtnode2p|\
 	wrtnode,wrtnode2r)
 		wan_mac=$(macaddr_add "$(mtd_get_mac_binary factory 0x4)" 1)
+		;;
+	hiwifi,hc5611|\
+	hiwifi,hc5661a|\
+	hiwifi,hc5761a|\
+	hiwifi,hc5861b)
+		lan_mac=$(mtd_get_mac_ascii bdinfo "Vfac_mac ")
+		label_mac=$lan_mac
+		[ -n "$lan_mac" ] || lan_mac=$(cat /sys/class/net/eth0/address)
+		wan_mac=$(macaddr_add "$lan_mac" 1)
+		;;
+	hooolink,hl-mf908-v3)
+		label_mac=$(mtd_get_mac_binary factory 0x2e)
 		;;
 	iptime,a3|\
 	iptime,a604m|\
