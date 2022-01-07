@@ -430,6 +430,24 @@ define Device/netgear_wndr4500-v3
 endef
 TARGET_DEVICES += netgear_wndr4500-v3
 
+define Device/perenio_peacg01
+  SOC := qca9531
+  DEVICE_VENDOR := Perenio
+  DEVICE_MODEL := PEACG01
+  DEVICE_PACKAGES := kmod-usb2 kmod-i2c-gpio kmod-rtc-pcf8563 \
+	kmod-usb-serial-pl2303 ser2net
+  BLOCKSIZE := 128k
+  PAGESIZE := 2048
+  SUBPAGESIZE := 512
+  IMAGE_SIZE := 131072k
+  KERNEL_SIZE := 4096k
+  KERNEL := kernel-bin | append-dtb | lzma | uImage lzma
+  IMAGES := sysupgrade.tar
+  IMAGE/sysupgrade.tar := sysupgrade-tar | append-metadata
+  SUPPORTED_DEVICES += peacg01
+endef
+TARGET_DEVICES += perenio_peacg01
+
 define Device/zte_mf28x_common
   SOC := qca9563
   DEVICE_VENDOR := ZTE
