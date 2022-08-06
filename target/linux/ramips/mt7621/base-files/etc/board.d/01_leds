@@ -27,6 +27,10 @@ asus,rp-ac87)
 	;;
 asus,rt-ax53u)
 	ucidef_set_led_usbport "usb" "USB" "blue:usb" "usb1-port2"
+	ucidef_set_led_netdev "lan1" "lan1" "blue:lan1" "lan1"
+	ucidef_set_led_netdev "lan2" "lan2" "blue:lan2" "lan2"
+	ucidef_set_led_netdev "lan3" "lan3" "blue:lan3" "lan3"
+	ucidef_set_led_netdev "wan" "wan" "blue:wan" "wan"
 	ucidef_set_led_wlan "wlan2g" "WiFi 2.4GHz" "mt76-phy0" "phy0tpt"
 	ucidef_set_led_wlan "wlan5g" "WiFi 5GHz" "mt76-phy1" "phy1tpt"
 	;;

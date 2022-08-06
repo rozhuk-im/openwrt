@@ -30,6 +30,34 @@
 			color = <LED_COLOR_ID_BLUE>;
 			function = LED_FUNCTION_POWER;
 			gpios = <&gpio 13 GPIO_ACTIVE_LOW>;
+			default-state = "on";
+		};
+
+		lan1 {
+			color = <LED_COLOR_ID_BLUE>;
+			function = LED_FUNCTION_LAN;
+			function-enumerator = <1>;
+			gpios = <&switch0 3 GPIO_ACTIVE_LOW>;
+		};
+
+		lan2 {
+			color = <LED_COLOR_ID_BLUE>;
+			function = LED_FUNCTION_LAN;
+			function-enumerator = <2>;
+			gpios = <&switch0 6 GPIO_ACTIVE_LOW>;
+		};
+
+		lan3 {
+			color = <LED_COLOR_ID_BLUE>;
+			function = LED_FUNCTION_LAN;
+			function-enumerator = <3>;
+			gpios = <&switch0 9 GPIO_ACTIVE_HIGH>;
+		};
+
+		wan {
+			color = <LED_COLOR_ID_BLUE>;
+			function = LED_FUNCTION_WAN;
+			gpios = <&switch0 0 GPIO_ACTIVE_LOW>;
 		};
 
 		led_usb {
@@ -190,6 +218,9 @@
 };
 
 &switch0 {
+	gpio-controller;
+	#gpio-cells = <2>;
+
 	ports {
 		port@1 {
 			status = "okay";
@@ -214,4 +245,3 @@
 		function = "gpio";
 	};
 };
-
